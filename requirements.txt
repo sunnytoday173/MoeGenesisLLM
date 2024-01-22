@@ -1,0 +1,17 @@
+transformers 
+gradio==3.40.0
+zhipuai
+
+hydra-core
+loguru
+jieba
+pypinyin
+cn2an
+g2p_en
+pyopenjtalk
+lightning
+loralib
+natsort
+librosa
+wandb
+vector_quantize_pytorch

@@ -1,5 +1,5 @@
 # MoeGenesisLLM
-MoeGenesisLLM: A bishoujo nurturing simulation game demo based on LLM | 一个基于LLM的美少女养成小游戏Demo，主要用来练手，和实现一些平时的idea
+MoeGenesisLLM: A bishoujo nurturing simulation game demo based on LLM | 一个基于LLM的美少女养成小游戏Demo，主要用来练手，学习一些多模态拓展能力还有实现一些平时想到的idea。
 # Demo视频
 
 # 环境准备
