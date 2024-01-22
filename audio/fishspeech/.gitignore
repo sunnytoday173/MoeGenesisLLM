@@ -1,0 +1,17 @@
+.pgx.*
+.pdm-python
+/fish_speech.egg-info
+__pycache__
+/results
+/data
+/*.test.sh
+*.filelist
+filelists
+/fish_speech/text/cmudict_cache.pickle
+/checkpoints
+/.vscode
+/data_server/target
+/*.npy
+/*.wav
+/results
+/data

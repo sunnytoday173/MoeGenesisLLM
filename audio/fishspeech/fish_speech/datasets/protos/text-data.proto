@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package text_data;
+
+message Semantics {
+    repeated uint32 values = 1;
+}
+
+message Sentence {
+    string text = 1;
+    repeated string phones = 2;
+    repeated Semantics semantics = 3;
+}
+
+message TextData {
+    string source = 1;
+    string name = 2;
+    repeated string languages = 3;
+    repeated Sentence sentences = 4;
+}
+
+message SampledData {
+    string source = 1;
+    string name = 2;
+    repeated Sentence samples = 3;
+}
+
+message SampleDataRequest {
+    uint32 num_samples = 1;
+}
+
+service DataService {
+    rpc SampleData (SampleDataRequest) returns (SampledData) {}
+}

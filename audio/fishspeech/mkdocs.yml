@@ -1,0 +1,93 @@
+site_name: Fish Speech
+site_description: Targeting SOTA TTS solutions.
+site_url: https://speech.fish.audio
+
+# Repository
+repo_name: fishaudio/fish-speech
+repo_url: https://github.com/fishaudio/fish-speech
+edit_uri: blob/main/docs
+
+# Copyright
+copyright: Copyright &copy; 2023-2024 by Fish Audio
+
+theme:
+  name: material
+  language: en
+  features:
+    - content.action.edit
+    - content.action.view
+    - navigation.tracking
+    # - navigation.tabs
+    - search
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+  icon:
+    logo: fontawesome/solid/fish
+
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+  
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7 
+        name: Switch to dark mode
+      primary: black
+      font:
+        code: Roboto Mono
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+      primary: black
+      font:
+        code: Roboto Mono
+  
+extra:
+  homepage: https://speech.fish.audio
+
+# Plugins
+plugins:
+  - search:
+      separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+      lang:
+        - zh
+        - en
+  - i18n:
+      docs_structure: folder
+      languages:
+        - locale: en
+          name: English
+          build: true
+        - locale: zh
+          default: true
+          name: 简体中文
+          build: true
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - attr_list
+  - md_in_html
+  - pymdownx.superfences
+
+extra_css:
+  - stylesheets/extra.css
