@@ -32,4 +32,10 @@ MoeGenesisLLM: A bishoujo nurturing simulation game demo based on LLM | 一个�
    - [ ] 存档能力
    - [ ] 英文版本
          
-# Credits
+# Credits/Reference
+- [ChatGLM](https://github.com/THUDM)
+- [fish-speech](https://github.com/fishaudio/fish-speech)
+- [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)
+- [gradio](https://github.com/gradio-app/gradio)
+- [StableDiffusion](https://github.com/Stability-AI/stablediffusion)
+- [Qwen](https://github.com/QwenLM/Qwen)
