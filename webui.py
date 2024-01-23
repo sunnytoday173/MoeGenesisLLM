@@ -1,7 +1,16 @@
+import configparser
 import json
 import gradio as gr
+import numpy as np
 import time
 import torch
+# GLM4依赖
+from zhipuai import ZhipuAI
+# 其他LLM依赖
+from transformers import AutoModelForCausalLM, AutoTokenizer
+# 工具agent
+from tools.audio import generate_audio, encode_text
+from tools.visualize import draw
 
 # 设置随机种子
 seed = 42
@@ -47,7 +56,7 @@ audio_generate = True
 
 # 主流程
 def main_process(text):
-    query = text
+    print(client)
     print("history:",backend_history)
     dialogue = [{"role":"system","content":system_prompt}]
     if backend_history is not None:
@@ -182,5 +191,57 @@ def chat(fn):
     return demo
 
 if __name__ == "__main__":
+    use_api_llm = True
+    if use_api_llm:
+        # 创建一个 ConfigParser对象
+        config = configparser.ConfigParser()
+
+        # 读取配置文件
+        config.read('./config/api_key.ini')
+
+        # 获取API Key
+        api_key = config.get("API", "api_key")
+        print(api_key)
+        print(type(api_key))
+
+        client = ZhipuAI(api_key=api_key)  # 填写您自己的APIKey
+    else:
+        model_path = "Qwen/Qwen-14B-Chat"
+        tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+        model = AutoModelForCausalLM.from_pretrained(
+            model_path,
+            device_map="auto",
+            trust_remote_code=True
+        ).eval()
+
+    # 载入音频模型
+    from audio.fishspeech.tools.llama.generate import load_model
+    device = "cuda"
+    half = True
+    precision = torch.half if half else torch.bfloat16
+    print("Loading model ...")
+
+    t2s_config_name = "text2semantic_finetune"
+    t2s_checkpoint_path = "./audio/checkpoints/text2semantic-400m-v0.3-4k.pth"
+    t2s_tokenizer_path = "./audio/tokenizer"
+    t2s_model = load_model(t2s_config_name, t2s_checkpoint_path, device, precision)
+    torch.cuda.synchronize()
+    audio_tokenizer = AutoTokenizer.from_pretrained(t2s_tokenizer_path)
+
+    from audio.fishspeech.tools.vqgan.inference import load_model
+
+    vqgan_config_name = "vqgan_pretrain"
+    vqgan_checkpoint_path = "./audio/checkpoints/vqgan-v1.pth"
+    vqgan_model = load_model(vqgan_config_name, vqgan_checkpoint_path)
+
+    # 默认参考语音
+    prompt_text = "你好，我是派蒙"
+    prompt_tokens_path = "./audio/paimon.npy"
+    prompt_tokens = (
+        torch.from_numpy(np.load(prompt_tokens_path)).to(device)
+        if prompt_tokens_path is not None
+        else None
+    )
+
     demo = chat(main_process)
     demo.launch()

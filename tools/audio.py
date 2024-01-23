@@ -7,42 +7,15 @@ import torch
 import torch.nn.functional as F
 from transformers import AutoTokenizer
 
-from audio.fishspeech.tools.llama.generate import load_model
-from audio.fishspeech.tools.llama.generate import decode_one_token,encode_tokens,generate
-
 # 将子文件夹的路径添加到sys.path中
 # 看下来是目前实现成本最低的方案
 sys.path.append(os.path.abspath('audio/fishspeech'))
 print(os.path.abspath('audio/fish-speech'))
 
-print("python path:",os.environ.get("PYTHONPATH",""))
-device = "cuda"
-half = True
-precision = torch.half if half else torch.bfloat16
-print("Loading model ...")
-t0 = time.time()
-t2s_config_name = "text2semantic_finetune"
-t2s_checkpoint_path = "./audio/checkpoints/text2semantic-400m-v0.2-4k.pth"
-t2s_tokenizer_path = "./audio/tokenizer"
-t2s_model = load_model(t2s_config_name, t2s_checkpoint_path, device, precision)
-torch.cuda.synchronize()
-print(f"Time to load model: {time.time() - t0:.02f} seconds")
-audio_tokenizer = AutoTokenizer.from_pretrained(t2s_tokenizer_path)
 
-from audio.fishspeech.tools.vqgan.inference import load_model
-vqgan_config_name = "vqgan_pretrain"
-vqgan_checkpoint_path = "./audio/checkpoints/vqgan-v1.pth"
-vqgan_model=load_model(vqgan_config_name, vqgan_checkpoint_path)
+from audio.fishspeech.tools.llama.generate import encode_tokens,generate
 
 
-# 默认配置
-prompt_text = "你好，我是派蒙"
-prompt_tokens_path = "./audio/paimon.npy"
-prompt_tokens = (
-        torch.from_numpy(np.load(prompt_tokens_path)).to(device)
-        if prompt_tokens_path is not None
-        else None
-    )
 
 def encode_text(tokenizer,text,prompt_text,prompt_tokens,device="cuda",use_g2p=True,speaker=None,order="zh,jp,en",compile=True,num_samples=1,max_new_tokens=0,temperature=0.7,top_k=None,top_p=0.5,repetition_penalty=1.5,turn=0,output_path=None):
     encoded = encode_tokens(

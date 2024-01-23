@@ -1,5 +1,5 @@
 transformers 
-gradio==3.40.0
+gradio
 zhipuai
 
 hydra-core
