@@ -13,7 +13,7 @@ sys.path.append(os.path.abspath('audio/fishspeech'))
 print(os.path.abspath('audio/fish-speech'))
 
 
-from audio.fishspeech.tools.llama.generate import encode_tokens,generate
+from audio.fishspeech.tools.llama.generate import encode_tokens,generate,decode_one_token
 
 
 
