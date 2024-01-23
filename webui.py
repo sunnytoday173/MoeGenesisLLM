@@ -201,8 +201,6 @@ if __name__ == "__main__":
 
         # 获取API Key
         api_key = config.get("API", "api_key")
-        print(api_key)
-        print(type(api_key))
 
         client = ZhipuAI(api_key=api_key)  # 填写您自己的APIKey
     else:
@@ -214,31 +212,15 @@ if __name__ == "__main__":
             trust_remote_code=True
         ).eval()
 
-    # 载入音频模型
-    from audio.fishspeech.tools.llama.generate import load_model
-    device = "cuda"
-    half = True
-    precision = torch.half if half else torch.bfloat16
-    print("Loading model ...")
-
-    t2s_config_name = "text2semantic_finetune"
-    t2s_checkpoint_path = "./audio/checkpoints/text2semantic-400m-v0.3-4k.pth"
+    # 加载tokenizer
     t2s_tokenizer_path = "./audio/tokenizer"
-    t2s_model = load_model(t2s_config_name, t2s_checkpoint_path, device, precision)
-    torch.cuda.synchronize()
     audio_tokenizer = AutoTokenizer.from_pretrained(t2s_tokenizer_path)
-
-    from audio.fishspeech.tools.vqgan.inference import load_model
-
-    vqgan_config_name = "vqgan_pretrain"
-    vqgan_checkpoint_path = "./audio/checkpoints/vqgan-v1.pth"
-    vqgan_model = load_model(vqgan_config_name, vqgan_checkpoint_path)
 
     # 默认参考语音
     prompt_text = "你好，我是派蒙"
     prompt_tokens_path = "./audio/paimon.npy"
     prompt_tokens = (
-        torch.from_numpy(np.load(prompt_tokens_path)).to(device)
+        torch.from_numpy(np.load(prompt_tokens_path)).cuda()
         if prompt_tokens_path is not None
         else None
     )

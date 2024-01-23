@@ -15,7 +15,22 @@ print(os.path.abspath('audio/fish-speech'))
 
 from audio.fishspeech.tools.llama.generate import encode_tokens,generate,decode_one_token
 
+# 载入音频模型
+from audio.fishspeech.tools.llama.generate import load_model
+device = "cuda"
+half = True
+precision = torch.half if half else torch.bfloat16
+print("Loading model ...")
 
+t2s_config_name = "text2semantic_finetune"
+t2s_checkpoint_path = "./audio/checkpoints/text2semantic-400m-v0.3-4k.pth"
+t2s_model = load_model(t2s_config_name, t2s_checkpoint_path, device, precision)
+torch.cuda.synchronize()
+
+from audio.fishspeech.tools.vqgan.inference import load_model
+vqgan_config_name = "vqgan_pretrain"
+vqgan_checkpoint_path = "./audio/checkpoints/vqgan-v1.pth"
+vqgan_model = load_model(vqgan_config_name, vqgan_checkpoint_path)
 
 def encode_text(tokenizer,text,prompt_text,prompt_tokens,device="cuda",use_g2p=True,speaker=None,order="zh,jp,en",compile=True,num_samples=1,max_new_tokens=0,temperature=0.7,top_k=None,top_p=0.5,repetition_penalty=1.5,turn=0,output_path=None):
     encoded = encode_tokens(
@@ -111,5 +126,14 @@ def generate_audio(input_path,output_path):
 
 if __name__ == "__main__":
     text = "今天天气真不错，我们去野餐吧"
+    t2s_tokenizer_path = "./tokenizer"
+    audio_tokenizer = AutoTokenizer.from_pretrained(t2s_tokenizer_path)
+    prompt_text = "你好，我是派蒙"
+    prompt_tokens_path = "./paimon.npy"
+    prompt_tokens = (
+        torch.from_numpy(np.load(prompt_tokens_path)).cuda()
+        if prompt_tokens_path is not None
+        else None
+    )
     encode_text(audio_tokenizer,text, prompt_text, prompt_tokens,turn=0)
 
