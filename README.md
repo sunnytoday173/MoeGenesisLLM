@@ -17,6 +17,7 @@ MoeGenesisLLM: A bishoujo nurturing simulation game demo based on LLM | 一个�
      - [ ] 基于Replace Anything的和人设相结合的结局CG
    - [ ] 图像/文本
    - [ ] 模块Agent化
+     - [ ] 模块结构优化参照text-generation-webui，降低复现难度
 - [ ] **低优先级（暂定）:**
    - [x] 基于LLM+Prompt的主流程：五日流程+结局
      - [x] 本地部署（已尝试，不推荐）
@@ -38,4 +39,6 @@ MoeGenesisLLM: A bishoujo nurturing simulation game demo based on LLM | 一个�
 - [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)
 - [gradio](https://github.com/gradio-app/gradio)
 - [StableDiffusion](https://github.com/Stability-AI/stablediffusion)
+- [text-generation-webui](https://github.com/oobabooga/text-generation-webui)
 - [Qwen](https://github.com/QwenLM/Qwen)
+- 
