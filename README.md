@@ -1,8 +1,15 @@
 # MoeGenesisLLM
 MoeGenesisLLM: A bishoujo nurturing simulation game demo based on LLM | 一个基于LLM的美少女养成小游戏Demo，主要用来练手，学习一些多模态拓展能力还有实现一些平时想到的idea。
 # Demo视频
-
+- [Demo视频](https://github.com/sunnytoday173/MoeGenesisLLM/blob/main/video/demo.mkv)
 # 环境准备
+Python==3.10 CUDA 11以上
+## 手动安装
+```
+pip install -r requirements.txt
+```
+nltk包建议手动下载后放在对应路径。
+感觉还是有些复杂了，准备学习text-generation-webui通过可执行文件的方式准备环境
 
 # 待办事项清单
 - [ ] **高优先级:**
