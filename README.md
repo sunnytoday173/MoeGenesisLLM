@@ -25,6 +25,7 @@ MoeGenesisLLM: A bishoujo nurturing simulation game demo based on LLM | 一个�
        - [ ] 基于GPT-SoViTS的TTS
        - [ ] 支持基于参考音频的TTS
    - [ ] 文本到图像
+     - [ ] 通过LLM将中文人设描述转换为SD可理解的描述
      - [ ] 基于Stable Diffusion的txt2img prompt优化，实现高清和低显存占用
    - [ ] 图像到文本
        - [ ] 基于多模态LLM的送礼物能力
