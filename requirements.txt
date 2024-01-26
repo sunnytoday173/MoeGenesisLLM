@@ -15,3 +15,6 @@ natsort
 librosa
 wandb
 vector_quantize_pytorch
+
+diffusers
+accelerate

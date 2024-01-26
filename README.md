@@ -10,8 +10,8 @@ MoeGenesisLLM: A bishoujo nurturing simulation game demo based on LLM | 一个�
        - [x] 通过API调用方式实现LLM使用
    - [x] 文本到语音（TTS）
        - [x] 基于Fish-Speech的TTS
-   - [ ] 文本到图像
-     - [ ] 基于Stable Diffusion的txt2img实现人设生成
+   - [x] 文本到图像
+     - [x] 基于Stable Diffusion的txt2img实现人设生成
    - [ ] 图像到图像
      - [ ] 基于Stable Diffsuion的和人设相结合的结局CG
      - [ ] 基于Replace Anything的和人设相结合的结局CG
@@ -24,6 +24,8 @@ MoeGenesisLLM: A bishoujo nurturing simulation game demo based on LLM | 一个�
    - [ ] 文本到语音（TTS）
        - [ ] 基于GPT-SoViTS的TTS
        - [ ] 支持基于参考音频的TTS
+   - [ ] 文本到图像
+     - [ ] 基于Stable Diffusion的txt2img prompt优化，实现高清和低显存占用
    - [ ] 图像到文本
        - [ ] 基于多模态LLM的送礼物能力
    - [ ] 文本/图像到视频

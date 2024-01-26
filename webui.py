@@ -11,6 +11,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 # 工具agent
 from tools.audio import generate_audio, encode_text
 from tools.visualize import draw
+from tools.txt2img import generate_image
 
 # 设置随机种子
 seed = 42
@@ -53,6 +54,7 @@ system_prompt = f"\n\
 
 backend_history = []
 audio_generate = True
+image_generate = True
 
 # 主流程
 def main_process(text):
@@ -94,12 +96,12 @@ def main_process(text):
     if audio_generate:
         turn = len(backend_history)
         encode_current_word_path = f"./audio/record/current_codes_{turn}_0.npy"
-        encode_current_word = encode_text(audio_tokenizer,current_word,prompt_text, prompt_tokens,turn=turn,output_path=encode_current_word_path)
+        encode_text(audio_tokenizer,current_word,prompt_text, prompt_tokens,turn=turn,output_path=encode_current_word_path)
         current_word_wav_path = f"./audio/record/current_fake_{turn}.wav"
         generate_audio(encode_current_word_path,current_word_wav_path)
         
         encode_future_word_path = f"./audio/record/future_codes_{turn}_0.npy"
-        encode_future_word = encode_text(audio_tokenizer,future_word,prompt_text, prompt_tokens,turn=turn,output_path=encode_future_word_path)
+        encode_text(audio_tokenizer,future_word,prompt_text, prompt_tokens,turn=turn,output_path=encode_future_word_path)
         future_word_wav_path = f"./audio/record/future_fake_{turn}.wav"
         generate_audio(encode_future_word_path,future_word_wav_path)
         
@@ -120,14 +122,21 @@ def chat(fn):
                     with gr.Box():
                         bot_avatar = gr.Image(label="")
                         upload_button = gr.UploadButton("上传形象", file_types=["image"])
+                        role_prompt = gr.Textbox(label="角色Prompt",container=False)
+                        generate_button = gr.Button("根据prompt生成形象")
                     current_ability = gr.Image(label="当前能力值")
                 with gr.Box():
                     gr.Markdown("##### 角色名")
                     bot_name_textbox = gr.Textbox(placeholder="派蒙",container=False)
                     gr.Markdown("##### 用户身份")
                     user_name_text_box = gr.Textbox(placeholder="旅行者",container=False)
-                    name_button = gr.Button("开始你的故事")  
-                audio_radio = gr.Radio(choices=["是","否"],label="是否进行音频生成",info="打开会生成音频提高体验，不生成可以节省推理时间",value="是",show_label=True)
+                    name_button = gr.Button("开始你的故事")
+                audio_radio = gr.Radio(choices=["是", "否"], label="是否进行音频生成",
+                                       info="打开会生成音频提高体验，不生成可以节省推理时间", value="是",
+                                       show_label=True)
+                image_radio = gr.Radio(choices=["是", "否"], label="是否进行图片生成",
+                                       info="打开可以生成图片提高体验，不生成可以节省推理时间和显存", value="是",
+                                       show_label=True)
             with gr.Column():
                 chatbot = gr.Chatbot(height=500,avatar_images=("user.jpg","bot.jpg"),show_share_button=True)
                 msg = gr.Textbox(show_label=False,placeholder="请输入对话内容",container=False)
@@ -169,6 +178,11 @@ def chat(fn):
         
         def upload_file(file):
             return file.name
+
+        def generate_avatar(prompt):
+            avatar_name = "bot_avatar.png"
+            generate_image(prompt,"./" + avatar_name)
+            return avatar_name
         
         def clear_history():
             global backend_history
@@ -182,13 +196,25 @@ def chat(fn):
             else:
                 audio_generate = False
             return
+
+        def image_switch(switch_info):
+            global image_generate
+            if switch_info == "是":
+                image_generate = True
+            else:
+                image_generate = False
+            return
+
                 
         msg.submit(bot, [msg,chatbot], [msg, chatbot,current_ability])
         clear.click(clear_history, None, chatbot)
-        name_button.click(name, [bot_name_textbox,user_name_text_box,chatbot], [msg,chatbot,current_ability])
+        name_button.click(name, [bot_name_textbox, user_name_text_box, chatbot], [msg, chatbot, current_ability])
         upload_button.upload(upload_file, upload_button, bot_avatar)
-        audio_radio.change(audio_switch,audio_radio,None)
+        generate_button.click(generate_avatar, role_prompt, bot_avatar)
+        audio_radio.change(audio_switch, audio_radio, None)
+        image_radio.change(image_switch, image_radio, None)
     return demo
+
 
 if __name__ == "__main__":
     use_api_llm = True
