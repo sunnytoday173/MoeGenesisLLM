@@ -11,7 +11,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 # 工具agent
 from tools.audio import generate_audio, encode_text
 from tools.visualize import draw
-from tools.txt2img import generate_image
+#from tools.txt2img import generate_image
 
 # 设置随机种子
 seed = 42
@@ -20,16 +20,17 @@ torch.cuda.manual_seed(seed)
 
 # 样例 理论上应该多给一些优化效果，但是此处为了节约token使用只放一个
 example_json = \
-{
-  "当前天数": "1",
-  "想要对用户说的话": "你好，这个名字真好听！今天是我们第一次见面，你有什么计划吗？我希望能够和你共度愉快的五天。",
-  "对下一天安排的期待": "我很好奇明天我们会做些什么呢？希望可以学到新东西或者锻炼身体。",
-  "属性更新如下": {"体力": "-1，因为学习耗费了体力所以降低了一点","魅力": "+0，今天没有发生什么变化","智力": "+1，因为今天读书了所以增长了1点","好感度": "+0，今天没有发生什么变化","财富": "+0，今天没有发生什么变化"},
-  "当前属性值": {"体力": "5","魅力": "5","智力": "5","好感度": "5","财富": "5"}
-}
+    {
+        "当前天数": "1",
+        "想要对用户说的话": "你好，这个名字真好听！今天是我们第一次见面，你有什么计划吗？我希望能够和你共度愉快的五天。",
+        "对下一天安排的期待": "我很好奇明天我们会做些什么呢？希望可以学到新东西或者锻炼身体。",
+        "属性更新如下": {"体力": "-1，因为学习耗费了体力所以降低了一点", "魅力": "+0，今天没有发生什么变化",
+                         "智力": "+1，因为今天读书了所以增长了1点", "好感度": "+0，今天没有发生什么变化",
+                         "财富": "+0，今天没有发生什么变化"},
+        "当前属性值": {"体力": "5", "魅力": "5", "智力": "5", "好感度": "5", "财富": "5"}
+    }
 
-example_json = json.dumps(example_json,ensure_ascii=False)
-
+example_json = json.dumps(example_json, ensure_ascii=False)
 
 # prompt
 system_prompt = f"\n\
@@ -56,21 +57,22 @@ backend_history = []
 audio_generate = True
 image_generate = True
 
+
 # 主流程
 def main_process(text):
     print(client)
-    print("history:",backend_history)
-    dialogue = [{"role":"system","content":system_prompt}]
+    print("history:", backend_history)
+    dialogue = [{"role": "system", "content": system_prompt}]
     if backend_history is not None:
-        for user_msg,bot_msg in backend_history:
+        for user_msg, bot_msg in backend_history:
             if user_msg is not None and bot_msg is not None:
-                dialogue.append({"role":"user","content":user_msg})
-                dialogue.append({"role":"assistant","content":bot_msg})
-    dialogue.append({"role":"user","content":text})
+                dialogue.append({"role": "user", "content": user_msg})
+                dialogue.append({"role": "assistant", "content": bot_msg})
+    dialogue.append({"role": "user", "content": text})
     try:
         response = client.chat.completions.create(
-                model="glm-4",  # 填写需要调用的模型名称
-                messages=dialogue,
+            model="glm-4",  # 填写需要调用的模型名称
+            messages=dialogue,
         )
         print(response)
         # 解析返回结果
@@ -80,8 +82,8 @@ def main_process(text):
         # 如果失败则重试一次
         print("Parse Error Retrying")
         response = client.chat.completions.create(
-                model="glm-4",  # 填写需要调用的模型名称
-                messages=dialogue,
+            model="glm-4",  # 填写需要调用的模型名称
+            messages=dialogue,
         )
         print(response)
         result = response.choices[0].message.content
@@ -96,22 +98,25 @@ def main_process(text):
     if audio_generate:
         turn = len(backend_history)
         encode_current_word_path = f"./audio/record/current_codes_{turn}_0.npy"
-        encode_text(audio_tokenizer,current_word,prompt_text, prompt_tokens,turn=turn,output_path=encode_current_word_path)
+        encode_text(audio_tokenizer, current_word, prompt_text, prompt_tokens, turn=turn,
+                    output_path=encode_current_word_path)
         current_word_wav_path = f"./audio/record/current_fake_{turn}.wav"
-        generate_audio(encode_current_word_path,current_word_wav_path)
-        
+        generate_audio(encode_current_word_path, current_word_wav_path)
+
         encode_future_word_path = f"./audio/record/future_codes_{turn}_0.npy"
-        encode_text(audio_tokenizer,future_word,prompt_text, prompt_tokens,turn=turn,output_path=encode_future_word_path)
+        encode_text(audio_tokenizer, future_word, prompt_text, prompt_tokens, turn=turn,
+                    output_path=encode_future_word_path)
         future_word_wav_path = f"./audio/record/future_fake_{turn}.wav"
-        generate_audio(encode_future_word_path,future_word_wav_path)
-        
+        generate_audio(encode_future_word_path, future_word_wav_path)
+
     ending = None
-    if "结局" in result_json and len(result_json["结局"])>5:
+    if "结局" in result_json and len(result_json["结局"]) > 5:
         ending = result_json["结局"]
-    print(current_day,current_word,future_word,current_ability)
-    image_path = draw(current_day,current_ability)
+    print(current_day, current_word, future_word, current_ability)
+    image_path = draw(current_day, current_ability)
     print(image_path)
-    return result,current_word,future_word,ability_difference,image_path,ending,current_day,current_word_wav_path,future_word_wav_path
+    return result, current_word, future_word, ability_difference, image_path, ending, current_day, current_word_wav_path, future_word_wav_path
+
 
 # 绘制gradio界面
 def chat(fn):
@@ -120,16 +125,34 @@ def chat(fn):
             with gr.Column():
                 with gr.Row():
                     with gr.Box():
+                        example_prompt = ("(masterpiece),(highest quality),highres,(an extremely delicate and "
+                                          "beautiful),(extremely detailed), 1girl, japanese clothes, solo, kimono, "
+                                          "animal ears, horse ears, hair over one eye, brown hair, flower, "
+                                          "purple eyes, sash, smile, obi, blush, wide sleeves, white kimono, rose, "
+                                          "blue flower, blue rose, floral print, closed mouth, horse girl, "
+                                          "long sleeves, print kimono, cherry blossoms, looking at viewer, "
+                                          "upper body, petals, hair flower, hat, bangs, blurry, arm up, "
+                                          "blurry foreground, tilted headwear, depth of field, hair ornament, "
+                                          "short hair, one eye covered, hand up, eyebrows visible through hair, "
+                                          "long hair, blurry background, pink flower, alternate costume")
+                        example_negative_prompt = ("watercolor, oil painting, photo, deformed, realism, disfigured, "
+                                                   "lowres, bad anatomy, bad hands, text, error, missing fingers, "
+                                                   "extra digit, fewer digits, cropped, worst quality, low quality, "
+                                                   "normal quality, jpeg artifacts, signature, watermark, username, "
+                                                   "blurry")
                         bot_avatar = gr.Image(label="")
                         upload_button = gr.UploadButton("上传形象", file_types=["image"])
-                        role_prompt = gr.Textbox(label="角色Prompt",container=False)
+                        role_prompt = gr.Textbox(label="角色Prompt", placeholder=example_prompt, show_label=True)
+                        role_negative_prompt = gr.Textbox(label="角色Negative Prompt",
+                                                          placeholder=example_negative_prompt, show_label=True)
                         generate_button = gr.Button("根据prompt生成形象")
                     current_ability = gr.Image(label="当前能力值")
+
                 with gr.Box():
                     gr.Markdown("##### 角色名")
-                    bot_name_textbox = gr.Textbox(placeholder="派蒙",container=False)
+                    bot_name_textbox = gr.Textbox(placeholder="派蒙", container=False)
                     gr.Markdown("##### 用户身份")
-                    user_name_text_box = gr.Textbox(placeholder="旅行者",container=False)
+                    user_name_text_box = gr.Textbox(placeholder="旅行者", container=False)
                     name_button = gr.Button("开始你的故事")
                 audio_radio = gr.Radio(choices=["是", "否"], label="是否进行音频生成",
                                        info="打开会生成音频提高体验，不生成可以节省推理时间", value="是",
@@ -138,57 +161,79 @@ def chat(fn):
                                        info="打开可以生成图片提高体验，不生成可以节省推理时间和显存", value="是",
                                        show_label=True)
             with gr.Column():
-                chatbot = gr.Chatbot(height=500,avatar_images=("user.jpg","bot.jpg"),show_share_button=True)
-                msg = gr.Textbox(show_label=False,placeholder="请输入对话内容",container=False)
-                prompt_samples = [["锻炼"],["学习"],["打工"],["约会"],["休息"]]        
-                gr.Dataset(label='推荐提示词',components=[msg],samples=prompt_samples)
+                chatbot = gr.Chatbot(height=500, avatar_images=("user.jpg", "bot.jpg"), show_share_button=True)
+                msg = gr.Textbox(show_label=False, placeholder="请输入对话内容", container=False)
+                prompt_samples = [["锻炼"], ["学习"], ["打工"], ["约会"], ["休息"]]
+                gr.Dataset(label='推荐提示词', components=[msg], samples=prompt_samples)
                 clear = gr.Button("Clear")
-            
-        def name(bot_name,user_name,frontend_history):
+
+        def name(bot_name, user_name, frontend_history):
             clear_history()
             if bot_name is None or len(bot_name) == 0:
                 bot_name = "派蒙"
             if user_name is None or len(user_name) == 0:
                 user_name = "旅行者"
-            msg = f"你的名字是{bot_name},我的身份是{user_name}" 
-            raw_result,current_word,future_word,ability_difference,image_path,ending,current_day,current_word_wav_path,future_word_wav_path = fn(msg)
-            backend_history.append((msg,raw_result))
-            frontend_history.append((None,current_word))
+            msg = f"你的名字是{bot_name},我的身份是{user_name}"
+            raw_result, current_word, future_word, ability_difference, image_path, ending, current_day, current_word_wav_path, future_word_wav_path = fn(
+                msg)
+            backend_history.append((msg, raw_result))
+            frontend_history.append((None, current_word))
             if current_word_wav_path is not None:
-                frontend_history.append((None,(current_word_wav_path,)))
-            #frontend_history.append((None,(image_path,)))
-            return "",frontend_history,image_path
+                frontend_history.append((None, (current_word_wav_path,)))
+            # frontend_history.append((None,(image_path,)))
+            return "", frontend_history, image_path
 
-        def bot(msg,frontend_history):
+        def bot(msg, frontend_history):
             print(frontend_history)
-            raw_result,current_word,future_word,ability_difference,image_path,ending,current_day,current_word_wav_path,future_word_wav_path = fn(msg)
-            backend_history.append((msg,raw_result))
-            frontend_history.append((msg,current_word))
+            raw_result, current_word, future_word, ability_difference, image_path, ending, current_day, current_word_wav_path, future_word_wav_path = fn(
+                msg)
+            backend_history.append((msg, raw_result))
+            frontend_history.append((msg, current_word))
             if current_word_wav_path is not None:
-                frontend_history.append((None,(current_word_wav_path,)))
+                frontend_history.append((None, (current_word_wav_path,)))
             if int(current_day) > 1:
-                frontend_history.append((None,future_word))
+                frontend_history.append((None, future_word))
                 if future_word_wav_path is not None:
-                    frontend_history.append((None,(future_word_wav_path,)))
-                frontend_history.append((None,"能力变化：\n"+str(ability_difference)))
-            #frontend_history.append((None,(image_path,)))
+                    frontend_history.append((None, (future_word_wav_path,)))
+                frontend_history.append((None, "能力变化：\n" + str(ability_difference)))
+            # frontend_history.append((None,(image_path,)))
             if ending is not None:
-                frontend_history.append((None,"结局：" + ending))
-            return "",frontend_history,image_path
-        
+                frontend_history.append((None, "结局：" + ending))
+            return "", frontend_history, image_path
+
         def upload_file(file):
             return file.name
 
-        def generate_avatar(prompt):
+        def generate_avatar(prompt, negative_prompt):
+            example_prompt = ("(masterpiece),(highest quality),highres,(an extremely delicate and "
+                              "beautiful),(extremely detailed), 1girl, japanese clothes, solo, kimono, "
+                              "animal ears, horse ears, hair over one eye, brown hair, flower, "
+                              "purple eyes, sash, smile, obi, blush, wide sleeves, white kimono, rose, "
+                              "blue flower, blue rose, floral print, closed mouth, horse girl, "
+                              "long sleeves, print kimono, cherry blossoms, looking at viewer, "
+                              "upper body, petals, hair flower, hat, bangs, blurry, arm up, "
+                              "blurry foreground, tilted headwear, depth of field, hair ornament, "
+                              "short hair, one eye covered, hand up, eyebrows visible through hair, "
+                              "long hair, blurry background, pink flower, alternate costume")
+            example_negative_prompt = ("watercolor, oil painting, photo, deformed, realism, disfigured, "
+                                       "lowres, bad anatomy, bad hands, text, error, missing fingers, "
+                                       "extra digit, fewer digits, cropped, worst quality, low quality, "
+                                       "normal quality, jpeg artifacts, signature, watermark, username, "
+                                       "blurry")
+            # 填充默认值
+            if len(prompt) < 5:
+                prompt = example_prompt
+            if len(negative_prompt) < 5:
+                negative_prompt = example_negative_prompt
             avatar_name = "bot_avatar.png"
-            generate_image(prompt,"./" + avatar_name)
+            generate_image(prompt, negative_prompt, "./" + avatar_name)
             return avatar_name
-        
+
         def clear_history():
             global backend_history
             backend_history = []
             return None
-        
+
         def audio_switch(switch_info):
             global audio_generate
             if switch_info == "是":
@@ -205,12 +250,11 @@ def chat(fn):
                 image_generate = False
             return
 
-                
-        msg.submit(bot, [msg,chatbot], [msg, chatbot,current_ability])
+        msg.submit(bot, [msg, chatbot], [msg, chatbot, current_ability])
         clear.click(clear_history, None, chatbot)
         name_button.click(name, [bot_name_textbox, user_name_text_box, chatbot], [msg, chatbot, current_ability])
         upload_button.upload(upload_file, upload_button, bot_avatar)
-        generate_button.click(generate_avatar, role_prompt, bot_avatar)
+        generate_button.click(generate_avatar, [role_prompt, role_negative_prompt], bot_avatar)
         audio_radio.change(audio_switch, audio_radio, None)
         image_radio.change(image_switch, image_radio, None)
     return demo
