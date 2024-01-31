@@ -23,8 +23,9 @@ nltk包建议手动下载后放在对应路径。
      - [ ] 基于Stable Diffsuion的和人设相结合的结局CG
      - [ ] 基于Replace Anything的和人设相结合的结局CG
    - [ ] 图像/文本
-   - [ ] 模块Agent化
-     - [ ] 模块结构优化参照text-generation-webui，降低复现难度
+   - [x] Function Call方式实现各模块调用
+     - [x] [ModelScope版本](https://www.modelscope.cn/studios/Sunnytoday/moe_genesis_template/summary)
+     
 - [ ] **低优先级（暂定）:**
    - [x] 基于LLM+Prompt的主流程：五日流程+结局
      - [x] 本地部署（已尝试，不推荐）
@@ -42,6 +43,7 @@ nltk包建议手动下载后放在对应路径。
    - [ ] 结局分支
    - [ ] 存档能力
    - [ ] 英文版本
+   - [ ] 模块结构优化参照text-generation-webui，降低复现难度
          
 # Credits/Reference
 - [ChatGLM](https://github.com/THUDM)
